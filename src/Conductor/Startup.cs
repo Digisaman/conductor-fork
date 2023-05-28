@@ -62,8 +62,8 @@ namespace Conductor
 
             services.AddMvc(options =>
             {
-                options.InputFormatters.Add(new YamlRequestBodyInputFormatter());                
-                options.OutputFormatters.Add(new YamlRequestBodyOutputFormatter());
+                //options.InputFormatters.Add(new YamlRequestBodyInputFormatter());                
+                //options.OutputFormatters.Add(new YamlRequestBodyOutputFormatter());
                 options.Filters.Add<RequestObjectFilter>();
                 options.Filters.Add<ExceptionCodeFilter>();
                 options.EnableEndpointRouting = false;                
