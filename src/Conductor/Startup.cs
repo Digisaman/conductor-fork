@@ -28,6 +28,7 @@ using Microsoft.IdentityModel.Tokens;
 using Conductor.Auth;
 using Conductor.Middleware;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 namespace Conductor
 {
@@ -68,6 +69,8 @@ namespace Conductor
                 options.EnableEndpointRouting = false;                
             })
             .AddNewtonsoftJson()
+            .AddJsonOptions(options =>
+              options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
             .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
             services.AddSwaggerGen(c =>
