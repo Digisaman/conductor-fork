@@ -34,6 +34,9 @@ namespace Conductor.Steps
         public async override Task<ExecutionResult> RunAsync(IStepExecutionContext context)
         {
             var client = new RestClient(BaseUrl);
+            //Added to Remove Zero-Width Space Character
+            BaseUrl = BaseUrl.Replace("\u200B", null);
+            Resource = Resource.Replace("\u200B", null);
             var request = new RestRequest(Resource, Method, Format);
 
             if (Headers != null)
