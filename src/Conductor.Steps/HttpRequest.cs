@@ -51,6 +51,17 @@ namespace Conductor.Steps
                     request.AddQueryParameter(param.Key, Convert.ToString(param.Value));
             }
 
+
+            if (context.Workflow.Data != null)
+            {
+                Body = (ExpandoObject)context.Workflow.Data;
+            }
+
+            if (context.PersistenceData != null)
+            {
+
+            }
+
             if (Body != null)
             {
                 switch (Format)
@@ -64,6 +75,8 @@ namespace Conductor.Steps
 
                 }
             }
+
+           
             
             var response = await client.ExecuteTaskAsync<dynamic>(request);
             IsSuccessful = response.IsSuccessful;
@@ -78,6 +91,8 @@ namespace Conductor.Steps
                 ErrorMessage = response.ErrorMessage;
             }
 
+           
+            ///context.PersistenceData = ResponseBody.ToJson();
             return ExecutionResult.Next();
 
         }
