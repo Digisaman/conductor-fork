@@ -69,9 +69,9 @@ namespace Conductor.Controllers
         // DELETE api/values/5
         [HttpDelete("{id}")]
         //[Authorize(Policy = Policies.Author)]
-        public void Delete(int id)
+        public void Delete(string id)
         {
-            _service.RemoveDefinition(id)
+            _service.RemoveDefinition(id);
         }
     }
 }
