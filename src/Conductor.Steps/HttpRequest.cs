@@ -9,11 +9,48 @@ using Newtonsoft.Json.Linq;
 using RestSharp.Deserializers;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
+using IdentityModel.Client;
+using System.Net.Http;
+using RestSharp.Authenticators;
 
 namespace Conductor.Steps
 {
     public class HttpRequest : StepBodyAsync
     {
+        private readonly HttpRequestAuthorization httpRequestAuthorization;
+
+        public HttpRequest(HttpRequestAuthorization httpRequestAuthorization)
+        {
+            this.httpRequestAuthorization = httpRequestAuthorization;
+        }
+
+        private async Task<string> GetAccessToken(string clientId, string clientSecret, string clientScope)
+        {
+
+
+            var client = new HttpClient();
+
+            var disco = await client.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
+            {
+                Address = this.httpRequestAuthorization.Address,
+                Policy =
+                 {
+                     RequireHttps = httpRequestAuthorization.RequireHttps,
+                 }
+            });
+
+            // request token
+            var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            {
+                Address = disco.TokenEndpoint,
+
+                ClientId = clientId,
+                ClientSecret = clientSecret,
+                Scope = clientScope
+            });
+
+            return tokenResponse.AccessToken;
+        }
 
         public string BaseUrl { get; set; }
         public string Resource { get; set; }
@@ -37,8 +74,12 @@ namespace Conductor.Steps
             //Added to Remove Zero-Width Space Character
             BaseUrl = BaseUrl.Replace("\u200B", null);
             Resource = Resource.Replace("\u200B", null);
-            var request = new RestRequest(Resource, Method, Format);
 
+
+
+            string token = GetAccessToken(context.Workflow.ClientId, context.Workflow.ClientSecret, context.Workflow.ApiScope).Result;
+            var request = new RestRequest(Resource, Method, Format);
+            client.Authenticator = new OAuth2AuthorizationRequestHeaderAuthenticator(token, "Bearer");
             if (Headers != null)
             {
                 foreach (var header in Headers)
