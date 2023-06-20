@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Conductor.Domain.Interfaces;
 using Conductor.Domain.Models;
@@ -53,9 +54,43 @@ namespace Conductor.Domain.Services
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Gets the latest version of a definition by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public Definition GetDefinition(string id)
         {
             return _repository.Find(id);
+        }
+
+        /// <summary>
+        /// Gets all definition
+        /// </summary>
+        /// <param name="latestDefinitionVersion">true : return only latest versions of definitions - false : return all versions</param>
+        /// <returns></returns>
+        public IEnumerable<Definition> GetDefinition(bool latestDefinitionVersion = true)
+        {
+            if (latestDefinitionVersion)
+            {
+                var query = _repository.GetAll();
+                var groups = query.GroupBy(c => c.Id);
+
+                query = groups.SelectMany(a => a.Where(b => b.Version == a.Max(c => c.Version)));
+
+                return query;
+            }
+            return _repository.GetAll();
+        }
+
+        /// <summary>
+        /// removes a definition
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public bool RemoveDefinition(string id)
+        {
+            return _repository.Remove(id);
         }
     }
 }

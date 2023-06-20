@@ -14,5 +14,6 @@ namespace Conductor.Domain.Interfaces
         int? GetLatestVersion(string workflowId);
 
         void Save(Definition definition);
+        bool Remove(string id);
     }
 }
