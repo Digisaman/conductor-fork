@@ -34,6 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\workflow-core\src\WorkflowCore\WorkflowCore.csproj" />
     <ProjectReference Include="..\Conductor.Domain.Scripting\Conductor.Domain.Scripting.csproj" />
     <ProjectReference Include="..\Conductor.Domain\Conductor.Domain.csproj" />
     <ProjectReference Include="..\Conductor.Steps\Conductor.Steps.csproj" />

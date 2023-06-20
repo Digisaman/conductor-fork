@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using WorkflowCore.Exceptions;
 using WorkflowCore.Interface;
@@ -113,6 +114,8 @@ namespace Conductor.Storage.Services
         private IMongoCollection<Event> Events => _database.GetCollection<Event>("Events");
 
         private IMongoCollection<ExecutionError> ExecutionErrors => _database.GetCollection<ExecutionError>("ExecutionErrors");
+
+        public bool SupportsScheduledCommands => throw new NotImplementedException();
 
         public async Task<string> CreateNewWorkflow(WorkflowInstance workflow)
         {
@@ -284,6 +287,116 @@ namespace Conductor.Storage.Services
                 .Set(x => x.ExternalWorkerId, null);
 
             await EventSubscriptions.UpdateOneAsync(x => x.Id == eventSubscriptionId && x.ExternalToken == token, update);
+        }
+
+        public Task PersistErrors(IEnumerable<ExecutionError> errors, CancellationToken cancellationToken = default)
+        {
+            return PersistErrors(errors);
+        }
+
+        public Task<string> CreateNewWorkflow(WorkflowInstance workflow, CancellationToken cancellationToken = default)
+        {
+            return CreateNewWorkflow(workflow);
+        }
+
+        public Task PersistWorkflow(WorkflowInstance workflow, CancellationToken cancellationToken = default)
+        {
+            return PersistWorkflow(workflow);
+        }
+
+        public Task PersistWorkflow(WorkflowInstance workflow, List<EventSubscription> subscriptions, CancellationToken cancellationToken = default)
+        {
+            return PersistWorkflow(workflow, subscriptions);
+        }
+
+        public Task<IEnumerable<string>> GetRunnableInstances(DateTime asAt, CancellationToken cancellationToken = default)
+        {
+            return GetRunnableInstances(asAt);
+        }
+
+        public Task<WorkflowInstance> GetWorkflowInstance(string Id, CancellationToken cancellationToken = default)
+        {
+            return GetWorkflowInstance(Id);
+        }
+
+        public Task<IEnumerable<WorkflowInstance>> GetWorkflowInstances(IEnumerable<string> ids, CancellationToken cancellationToken = default)
+        {
+            return GetWorkflowInstances(ids);
+        }
+
+        public Task<string> CreateEventSubscription(EventSubscription subscription, CancellationToken cancellationToken = default)
+        {
+            return CreateEventSubscription(subscription);
+        }
+
+        public Task<IEnumerable<EventSubscription>> GetSubscriptions(string eventName, string eventKey, DateTime asOf, CancellationToken cancellationToken = default)
+        {
+            return GetSubscriptions(eventName, eventKey, asOf);
+        }
+
+        public Task TerminateSubscription(string eventSubscriptionId, CancellationToken cancellationToken = default)
+        {
+            return TerminateSubscription(eventSubscriptionId);
+        }
+
+        public Task<EventSubscription> GetSubscription(string eventSubscriptionId, CancellationToken cancellationToken = default)
+        {
+            return GetSubscription(eventSubscriptionId);
+        }
+
+        public Task<EventSubscription> GetFirstOpenSubscription(string eventName, string eventKey, DateTime asOf, CancellationToken cancellationToken = default)
+        {
+            return GetFirstOpenSubscription(eventName, eventKey, asOf);
+        }
+
+        public Task<bool> SetSubscriptionToken(string eventSubscriptionId, string token, string workerId, DateTime expiry, CancellationToken cancellationToken = default)
+        {
+            return SetSubscriptionToken(eventSubscriptionId, token, workerId, expiry);
+        }
+
+        public Task ClearSubscriptionToken(string eventSubscriptionId, string token, CancellationToken cancellationToken = default)
+        {
+            return ClearSubscriptionToken(eventSubscriptionId, token);
+        }
+
+        public Task<string> CreateEvent(Event newEvent, CancellationToken cancellationToken = default)
+        {
+            return CreateEvent(newEvent);
+        }
+
+        public Task<Event> GetEvent(string id, CancellationToken cancellationToken = default)
+        {
+            return GetEvent(id, cancellationToken);
+        }
+
+        public Task<IEnumerable<string>> GetRunnableEvents(DateTime asAt, CancellationToken cancellationToken = default)
+        {
+            return GetRunnableEvents(asAt);
+        }
+
+        public Task<IEnumerable<string>> GetEvents(string eventName, string eventKey, DateTime asOf, CancellationToken cancellationToken = default)
+        {
+            return GetEvents(eventName, eventKey, asOf);
+        }
+
+        public Task MarkEventProcessed(string id, CancellationToken cancellationToken = default)
+        {
+            return MarkEventProcessed(id);
+        }
+
+        public Task MarkEventUnprocessed(string id, CancellationToken cancellationToken = default)
+        {
+            return MarkEventUnprocessed(id);
+        }
+
+        public Task ScheduleCommand(ScheduledCommand command)
+        {
+            return ScheduleCommand(command);
+        }
+
+        public Task ProcessCommands(DateTimeOffset asOf, Func<ScheduledCommand, Task> action, CancellationToken cancellationToken = default)
+        {
+            return ProcessCommands(asOf, action);
         }
     }
 }
