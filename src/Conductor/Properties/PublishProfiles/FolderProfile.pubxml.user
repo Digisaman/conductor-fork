@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PublishTargetUrl>C:\Users\s.pirooz\Source\Repos\conductor-fork\src\Conductor\bin\Release\net6.0\publish\</_PublishTargetUrl>
+    <History>True|2023-06-07T08:49:37.6343327Z;False|2023-06-07T13:18:50.8867347+04:30;False|2023-06-07T13:18:32.0953250+04:30;True|2023-06-07T12:12:36.6525540+04:30;True|2023-06-07T12:02:06.4590351+04:30;True|2023-06-07T11:52:44.2842287+04:30;</History>
+  </PropertyGroup>
+</Project>

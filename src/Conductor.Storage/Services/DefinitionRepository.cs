@@ -94,6 +94,28 @@ namespace Conductor.Storage.Services
             });
         }
 
+        /// <summary>
+        /// Removes Definition By id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public bool Remove(string id)
+        {
+
+            Definition definition = Find(id);
+            if (definition == null)
+            {
+                throw new Exception("NotFound");
+            }
+
+
+            DeleteResult result = _collection.DeleteOne(c => c.ExternalId == definition.Id);
+            return result.DeletedCount == 1;
+
+
+        }
+
         static bool indexesCreated = false;
         static void CreateIndexes(IMongoCollection<StoredDefinition> collection)
         {

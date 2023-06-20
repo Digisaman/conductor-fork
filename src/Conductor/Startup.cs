@@ -29,6 +29,7 @@ using Conductor.Auth;
 using Conductor.Middleware;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
+using IdentityModel;
 
 namespace Conductor
 {
@@ -73,25 +74,84 @@ namespace Conductor
               options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
             .SetCompatibilityVersion(CompatibilityVersion.Latest);
 
-            services.AddSwaggerGen(c =>
+
+            //services.AddSwaggerGen(c =>
+            //{
+            //    c.SwaggerDoc("v1", new OpenApiInfo
+            //    {
+            //        Version = "v1",
+            //        Title = "Conductor API"
+            //    });
+            //});
+
+            //var authConfig = services.AddAuthentication(options =>
+            //{                
+            //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //});
+
+            //if (authEnabled)
+            //    authConfig.AddJwtAuth(Configuration);
+            //else
+            //    authConfig.AddBypassAuth();
+
+            services.AddSwaggerGen(swagger =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo
+                swagger.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Version = "v1",
-                    Title = "Conductor API"
+                    Title = "Conductor API",
+                    Version = "v1"
+                });
+                swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description =
+                              "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+                });
+                swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
+       {
+              {
+                     new OpenApiSecurityScheme
+                     {
+                            Reference = new OpenApiReference
+                            {
+                                   Type = ReferenceType.SecurityScheme,
+                                   Id = "Bearer"
+                            }
+                     },
+                     new string[] { }
+              }
+       });
+            });
+
+            #region Authentication - Authorization
+            services.AddCors(options => options.AddPolicy("CORS", corsPolicyBuilder =>
+       corsPolicyBuilder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin()));
+            services.AddAuthentication("Bearer")
+            .AddJwtBearer("Bearer", options =>
+            {
+                options.Authority = "http://identity.sabinarya.com";
+                options.RequireHttpsMetadata = false;
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = false,
+                    RoleClaimType = JwtClaimTypes.Role,
+                };
+            });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ApiScope", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("scope", "workflow");
                 });
             });
-
-            var authConfig = services.AddAuthentication(options =>
-            {                
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            });
-
-            if (authEnabled)
-                authConfig.AddJwtAuth(Configuration);
-            else
-                authConfig.AddBypassAuth();
+            #endregion
 
             services.AddPolicies();
 
@@ -151,10 +211,15 @@ namespace Conductor
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
             });
 
-            app.UseCors(x => x
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
+            app.UseCors("CORS");
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+            {
+
+                endpoints.MapControllers()
+                .RequireAuthorization("ApiScope");
+            });
 
             var host = app.ApplicationServices.GetService<IWorkflowHost>();
             var defService = app.ApplicationServices.GetService<IDefinitionService>();
