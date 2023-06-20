@@ -49,7 +49,10 @@ namespace Conductor.Domain.Services
                 DefaultErrorBehavior = source.DefaultErrorBehavior,
                 DefaultErrorRetryInterval = source.DefaultErrorRetryInterval,
                 Description = source.Description,
-                DataType = dataType
+                DataType = dataType,
+                ClientId = source.ClientId,
+                ClientSecret = source.ClientSecret,
+                ApiScope = source.ApiScope
             };
 
             return result;
@@ -98,6 +101,7 @@ namespace Conductor.Domain.Services
                 targetStep.ErrorBehavior = nextStep.ErrorBehavior;
                 targetStep.RetryInterval = nextStep.RetryInterval;
                 targetStep.ExternalId = $"{nextStep.Id}";
+                targetStep.Role = nextStep.Role;
 
                 AttachInputs(nextStep, dataType, stepType, targetStep);
                 AttachOutputs(nextStep, dataType, stepType, targetStep);

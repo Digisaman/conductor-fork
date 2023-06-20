@@ -20,6 +20,26 @@ namespace Conductor.Domain.Models
         public TimeSpan? DefaultErrorRetryInterval { get; set; }
 
         public List<Step> Steps { get; set; } = new List<Step>();
-        
+
+        /// <summary>
+        /// used to store the graphical representation of the workflow
+        /// </summary>
+        public string Shape { get; set; }
+
+        /// <summary>
+        /// ClientId of the App in IdentityServer on which the API's are called, used for authentication
+        /// </summary>
+        public string ClientId { get; set; }
+
+        /// <summary>
+        /// ClientSecret of the App in IdentityServer on which the API's are called, used for authentication
+        /// </summary>
+        public string ClientSecret { get; set; }
+
+        /// <summary>
+        /// ApiScope of the App in IdentityServer on which the API's are called, used for authorization
+        /// </summary>
+        public string ApiScope { get; set; }
+
     }
 }
